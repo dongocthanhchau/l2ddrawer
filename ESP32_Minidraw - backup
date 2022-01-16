@@ -1,0 +1,237 @@
+#include "arm.h"
+//#include <Servo.h>
+//
+//
+//
+//class servo {
+/////////
+//  private:
+//    int _pinout;
+//    float _cAng; //currentAngle
+//    int _response = 4; // 4ms per 1 deg at 7.4Volt
+//    Servo _ser;
+/////////    
+//  public:
+//    servo(void){
+//      this->_pinout =0;
+//    }
+//    servo(int _pinout){
+//      this->_pinout = _pinout;
+//    }
+//    void pinoutChange(int _pinout){
+//      this->_pinout = _pinout;
+//    }
+//    void init(){
+//      _ser.attach(this->_pinout,Servo::CHANNEL_NOT_ATTACHED,0,180,500,2500);
+//      //ser.attach(this->pinout);
+//      delay(1);
+//      _ser.write(0);
+//      _cAng= 0;
+//    }
+//    void init(int _defaultAng){
+//      _ser.attach(this->_pinout,Servo::CHANNEL_NOT_ATTACHED,0,180,500,2500);
+//      //ser.attach(this->pinout);
+//      delay(1);
+//      _ser.write(_defaultAng);
+//      _cAng = _defaultAng;
+//    }
+//    void moveToAngle(float _ang){
+//      _ser.write(_ang);
+//      delay(abs(_cAng-_ang)*_response);
+//      this->_cAng=_ang;
+//      //Serial.print("moved to ");
+//      //Serial.println(_ang);
+//    }
+//    float getAngle(){
+//      return(_cAng);
+//    }
+//};
+/////end of class "servo"
+////struct for support movement and calculation of pen class
+//struct point{
+//      float x,y;
+//    };
+//
+//class arm{
+//  private:
+//    // device configuration
+//    int _a1; //arm 1 long in centimeters
+//    int _a2; //arm 2 long in centimeters
+//    int _s; //distance between ser1 and ser2
+//    //pintout
+//    int SERL_PIN= 5;//(0,0) servo attach
+//    int SERR_PIN= 6;
+//    int SERP_PIN= 7; 
+//    int currentX,currentY;
+//    float _leftAng,_rightAng,_penAng;
+//    float _penUpAngle=0,_penDownAngle=90;
+//    //motor/servo library
+//    servo lServ,rServ,pServ;
+//    double distance(float x1, float y1, float x2,float y2){
+//      return sqrt( (x1-x2)*(x1-x2) + (y1-y2)*(y1-y2) );
+//    }
+//    double calcDeg(double _opp, double _side1, double _side2){
+////      Serial.println("_______________");
+////      Serial.println(_opp);
+////      Serial.println(_side1);
+////      Serial.println(_side2);
+////      Serial.println("_______________");
+//      return 180*acos( (_side1*_side1+_side2*_side2-_opp*_opp)/(2*_side1*_side2))/3.141592;
+//    }
+//    void servoCalc(float x,float y){
+//      float __d1,__d2;
+//      __d1 = distance(0,0,x,y);
+//      __d2 = distance(_s,0,x,y);
+////      Serial.print("d1:");
+////      Serial.print(__d1);
+////      Serial.print("d2:");
+////      Serial.println(__d2);
+////      Serial.print("calcDeg(__d2,_s,__d1):");
+////      Serial.println(calcDeg(__d2,_s,__d1));
+////      Serial.print("calcDeg(_a2,_a1,__d1):");
+////      Serial.println(calcDeg(_a2,_a1,__d1));
+//      this->_leftAng = calcDeg(__d2,_s,__d1)+calcDeg(_a2,_a1,__d1);
+//      if (_leftAng>180) _leftAng=180;
+//      if (_leftAng<30) _leftAng=30;
+//      if (_rightAng>150) _rightAng=150;
+//      if (_rightAng<0) _rightAng=0;
+//      this->_rightAng = 180-calcDeg(__d1,_s,__d2)-calcDeg(_a2,_a1,__d2);
+////      Serial.print("_leftAng:");
+////      Serial.println(_leftAng);
+////      Serial.print("_rightAng:");
+////      Serial.println(_rightAng);
+//    }
+//  public:
+//    arm(int leftpin, int rightpin, int penpin){
+//      SERL_PIN = leftpin;
+//      SERR_PIN = rightpin;
+//      SERP_PIN = penpin;
+//    }
+//    arm(int leftpin, int rightpin, int penpin,float a1, float a2, float s, float penupAngle, float pendownAngle){
+//      SERL_PIN = leftpin;
+//      SERR_PIN = rightpin;
+//      SERP_PIN = penpin;
+//      this->_a1 = a1;
+//      this->_a2 = a2;
+//      this->_s  = s;
+//      this->_penUpAngle=penupAngle;
+//      this->_penDownAngle=pendownAngle;
+//    }
+//    void init(void){
+//      //servo init
+//      lServ.pinoutChange(SERL_PIN);
+//      rServ.pinoutChange(SERR_PIN);
+//      pServ.pinoutChange(SERP_PIN);
+//      lServ.init();
+//      rServ.init();
+//      pServ.init();
+//      pServ.moveToAngle(_penUpAngle);
+//      delay(100);
+//      lServ.moveToAngle(90.0);
+//      rServ.moveToAngle(90.0);
+//      this->currentX= sqrt(_a2*_a2-_s*_s/4)+_a1 ;
+//      this->currentY= _s/2 ;
+//    }
+//    void move(float x, float y){
+//      // seperate into 2 problem
+////      Serial.print("x:");
+////      Serial.print(x);
+////      Serial.print(",y:");
+////      Serial.println(y);
+//      
+//      servoCalc(x,y);
+//      this->currentX= x;
+//      this->currentY= y;
+//      _penAng=pServ.getAngle();
+////      Serial.print("PEN:");
+////      Serial.print(_penAng);
+////      Serial.print("  LEFT:");
+////      Serial.print(_leftAng);
+////      Serial.print("  RIGHT:");
+////      Serial.println(_rightAng);
+//      //if (abs(_penAng-_penUpAngle)<=abs(_penAng-_penDownAngle)){
+//      int delayTime=0;
+//      if (_penAng == _penUpAngle){
+//        delayTime=0.1;
+//      } else{
+//        delayTime=10;
+//      }
+//        float __lAng,__rAng,__maxAng,__clAng,__crAng;
+//        __clAng = lServ.getAngle();
+//        __crAng = rServ.getAngle();
+//        __lAng = -__clAng+_leftAng;
+//        __rAng = -__crAng+_rightAng;
+//        Serial.println(lServ.getAngle());
+//        Serial.println(rServ.getAngle());
+////        Serial.print("  LEFT:");
+////        Serial.println(__lAng);
+////        Serial.print("  RIGHT:");
+////        Serial.println(__rAng);
+//        __maxAng = max(abs(__lAng),abs(__rAng));
+//        __maxAng /=0.3;
+//        for (int __i=0;__i<__maxAng;__i++){
+//          lServ.moveToAngle(__clAng+__i*__lAng/__maxAng);
+//          rServ.moveToAngle(__crAng+__i*__rAng/__maxAng);
+//          delay(delayTime);
+//        }
+//      
+//    }
+//    void penUp(void){
+//      pServ.moveToAngle(_penUpAngle);
+//      Serial.println("PENUP");
+//      delay(10);
+//    }
+//    void penDown(void){
+//      pServ.moveToAngle(_penDownAngle);
+//      Serial.println("PENDOWN");
+//      delay(10);
+//    }
+//    void line(float x1, float y1, float x2,float y2){
+//      this->penUp();
+//      this->move(x1,y1);
+//      this->penDown();
+//      this->move(x2,y2);
+//      this->penUp();
+//    }
+//    void getXY(float &x, float &y){
+//      x = this->currentX;
+//      x = this->currentY;
+//    }
+//};
+// //left, right, pen, arm1(mm), arm2(mm), distance between2servo(mm), PENupAngle, PENdownAngle
+arm drawer = arm(16,17,5,71,93,47,0,90);
+//servo serv = servo(16);
+void setup() {
+  // put your setup code here, to run once:
+  Serial.begin(115200);
+  drawer.init();
+  //serv.init();
+}
+
+void loop() {
+  // put your main code here, to run repeatedly:
+//  drawer.penUp();
+//  drawer.move(100,80);
+//  drawer.move(-50,80);
+//  drawer.penDown();
+//  drawer.move(100,80);
+//  drawer.move(-50,80);
+  drawer.line(90,80,80,80);
+  drawer.line(80,80,70,80);
+  drawer.line(70,80,60,80);
+  drawer.line(60,80,50,80);
+  drawer.line(50,80,40,80);
+  drawer.line(40,80,30,80);
+  drawer.line(30,80,20,80);
+  drawer.line(20,80,10,80);
+  drawer.line(10,80,0,80);
+  drawer.line(0,80,-10,80);
+  drawer.line(-10,80,-20,80);
+  drawer.line(-20,80,-30,80);
+  
+  delay(2000);
+  //serv.moveToAngle(180);
+  //delay(1000);
+  //serv.moveToAngle(0);
+  //delay(1000);
+}

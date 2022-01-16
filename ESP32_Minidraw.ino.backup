@@ -1,0 +1,39 @@
+#include "arm.h"
+
+// //left, right, pen, arm1(mm), arm2(mm), distance between2servo(mm), PENupAngle, PENdownAngle
+arm drawer = arm(16,17,5,71,93,47,0,90);
+//servo serv = servo(16);
+void setup() {
+  // put your setup code here, to run once:
+  Serial.begin(115200);
+  drawer.init();
+  //serv.init();
+}
+
+void loop() {
+  // put your main code here, to run repeatedly:
+//  drawer.penUp();
+//  drawer.move(100,80);
+//  drawer.move(-50,80);
+//  drawer.penDown();
+//  drawer.move(100,80);
+//  drawer.move(-50,80);
+  drawer.line(90,80,80,80);
+  drawer.line(80,80,70,80);
+  drawer.line(70,80,60,80);
+  drawer.line(60,80,50,80);
+  drawer.line(50,80,40,80);
+  drawer.line(40,80,30,80);
+  drawer.line(30,80,20,80);
+  drawer.line(20,80,10,80);
+  drawer.line(10,80,0,80);
+  drawer.line(0,80,-10,80);
+  drawer.line(-10,80,-20,80);
+  drawer.line(-20,80,-30,80);
+  
+  delay(2000);
+  //serv.moveToAngle(180);
+  //delay(1000);
+  //serv.moveToAngle(0);
+  //delay(1000);
+}
