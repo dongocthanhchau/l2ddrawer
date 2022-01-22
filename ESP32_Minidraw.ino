@@ -94,6 +94,7 @@ void controlTask(void *pvParameter){
       oldcounter = counter;
       drawer.penAngle(penAngle);
       drawer.moveAngle(leftAngle, rightAngle, delayTime);
+      sendResponse(counter);
     } else
 		vTaskDelay(20/portTICK_PERIOD_MS);
 	}

@@ -13,11 +13,14 @@ void pushData(float &left, float &right, float &pen, float &delayTime, int &coun
     delayTime=_delay;
     counter = _counter;
     
-    webSocket.sendTXT("{status\":\"done\",\"count\":"+String(_counter)+"}");
+    
   } else {
     webSocket.sendTXT("{status\":\"out of range\",\"count\":"+String(_counter)+"}");
     counter = _counter;
   }
+}
+void sendResponse(int counter){
+  webSocket.sendTXT("{status\":\"done\",\"count\":"+String(counter)+"}");
 }
 
 void hexdump(const void *mem, uint32_t len, uint8_t cols) {
