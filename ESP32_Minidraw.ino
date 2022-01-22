@@ -19,6 +19,8 @@ TaskHandle_t WebSocketTask;
 TaskHandle_t ControlTask; 
 TaskHandle_t OTATask;
 
+
+// them vo
 void wifiInit(void){
 	WiFi.disconnect();
     USE_SERIAL.print("Connecting Wifi ");
