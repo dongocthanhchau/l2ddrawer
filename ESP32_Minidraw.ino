@@ -20,7 +20,7 @@ TaskHandle_t ControlTask;
 TaskHandle_t OTATask;
 
 
-// them vo
+// them vo jjghgjhk
 void wifiInit(void){
 	WiFi.disconnect();
     USE_SERIAL.print("Connecting Wifi ");
