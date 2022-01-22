@@ -16,10 +16,10 @@ void arm::servoCalc(float x,float y){
   if (_rightAng>150) _rightAng=150;
   if (_rightAng<0) _rightAng=0;
   this->_rightAng = 180-calcDeg(__d1,_s,__d2)-calcDeg(_a2,_a1,__d2);
-  Serial.println("LA");
-  Serial.println(_leftAng);
-  Serial.println("RA");
-  Serial.println(_rightAng);
+//  Serial.println("LA");
+//  Serial.println(_leftAng);
+//  Serial.println("RA");
+//  Serial.println(_rightAng);
   
 }
 arm::arm(int leftpin, int rightpin, int penpin){
@@ -52,14 +52,14 @@ void arm::init(void){
   this->currentX= sqrt(_a2*_a2-_s*_s/4)+_a1 ;
   this->currentY= _s/2 ;
 }
-void arm::move(float x, float y){
+void arm::moveXY(float x, float y){
   // seperate into 2 problem
 
   servoCalc(x,y);
   this->currentX= x;
   this->currentY= y;
   _penAng=pServ.getAngle();
-  int delayTime=0;
+  int delayTime =0;
   if (_penAng == _penUpAngle){
     delayTime=0;
   } else{
@@ -98,23 +98,51 @@ void arm::penDown(void){
   Serial.println("PENDOWN");
   delay(10);
 }
+
 void arm::line(float x1, float y1, float x2,float y2){
   //if (pServ.getAngle()==
-  Serial.println(x1);
-  Serial.println(y1);
-  Serial.println(x2);
-  Serial.println(y2);
+//  Serial.println(x1);
+//  Serial.println(y1);
+//  Serial.println(x2);
+//  Serial.println(y2);
   if (this->currentX!=x1 || this->currentY!=y1){
     this->penUp();
-    this->move(x1,y1);
+    this->moveXY(x1,y1);
     this->penDown();
   }
   if (pServ.getAngle()==_penUpAngle)
     this->penDown();
-  this->move(x2,y2);
+  this->moveXY(x2,y2);
   //this->penUp();
 }
 void arm::getXY(float &x, float &y){
   x = this->currentX;
   x = this->currentY;
+}
+void arm::moveAngle(float angleL, float angleR, int delayTime){
+  float __maxAng,__clAng,__crAng,__lAng,__rAng;
+  __clAng = lServ.getAngle();
+  __crAng = rServ.getAngle();
+//  __lAng = -__clAng+_leftAng;
+//  __rAng = -__crAng+_rightAng;
+  __lAng = -__clAng+angleL;
+  __rAng = -__crAng+angleR;
+  __maxAng = max(abs(__lAng),abs(__rAng));
+  __maxAng /=0.3;
+  for (int __i=0;__i<__maxAng;__i++){
+    lServ.moveToAngle(__clAng+__i*__lAng/__maxAng);
+    rServ.moveToAngle(__crAng+__i*__rAng/__maxAng);
+    delay(delayTime);
+  }
+}
+void arm::penAngle(float anglePen){
+  int _pAng=pServ.getAngle();
+  
+  int _a=1;
+  if (_pAng-anglePen<0) _a=-1;
+  for (int i=0;i<abs(_penDownAngle-_penUpAngle);i++){
+    pServ.moveToAngle(_penUpAngle+_a*i);
+  }
+  pServ.moveToAngle(_penDownAngle);
+  delay(5);
 }

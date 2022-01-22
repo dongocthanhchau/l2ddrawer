@@ -34,10 +34,13 @@
     arm(int leftpin, int rightpin, int penpin);
     arm(int leftpin, int rightpin, int penpin,float a1, float a2, float s, float penupAngle, float pendownAngle);
     void init(void);
-    void move(float x, float y);
+    void moveXY(float x, float y);
     void penUp(void);
     void penDown(void);
     void line(float x1, float y1, float x2,float y2);
     void getXY(float &x, float &y);
+    void penAngle(float anglePen);
+    void moveAngle(float angleL, float angleR, int delayTime);
+    
 };
 #endif

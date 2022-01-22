@@ -21,7 +21,7 @@ TaskHandle_t OTATask;
 
 void wifiInit(void){
 	WiFi.disconnect();
-    USE_SERIAL.print("Connecting Wifi");
+    USE_SERIAL.print("Connecting Wifi ");
 	int num = 0;
 	while(WiFiMulti.run() != WL_CONNECTED){
 		delay(500);
@@ -33,7 +33,7 @@ void wifiInit(void){
     USE_SERIAL.println("Connected");
 }
 void setup() {
-	xTaskCreate(controlTask,"taskControl", 4096, NULL, 1, &ControlTask);
+	
 	// USE_SERIAL.begin(921600);
 	USE_SERIAL.begin(115200);
 	//Serial.setDebugOutput(true);
@@ -59,6 +59,7 @@ void wifiTask(void *pvParameter){
     WiFiMulti.addAP("CRETA-KD","yoursolution");
 	wifiInit();
 	xTaskCreate(wsTask,"taskWebsocket", 4096, NULL, 1, &WebSocketTask);
+  xTaskCreate(controlTask,"taskControl", 4096, NULL, 1, &ControlTask);
 	xTaskCreate(otaTask,"taskOTA", 4096, NULL, 1, &OTATask);
 	for(;;){
 		while (WiFi.status()!=WL_CONNECTED){
@@ -80,18 +81,21 @@ void wsTask(void *pvParameter){
 }
 void controlTask(void *pvParameter){
 	// //left, right, pen, arm1(mm), arm2(mm), distance between2servo(mm), PENupAngle, PENdownAngle
-  arm drawer = arm(16,17,5,71,93,47,0,90);
+  arm drawer = arm(16,17,5,71,93,47,0,90);// old dimension
   drawer.init();
-  float x1=-1.0,y1,x2,y2;
+  float leftAngle, rightAngle, penAngle, delayTime=0;
+  int counter=-1, oldcounter=-1;
 	//vTaskDelete(ControlTask);
   
 	for(;;){
     
-    pushData(x1,y1,x2,y2);
-    if (x1!=-1.0){
-      drawer.line(x1,y1,x2,y2);
-    }
-		vTaskDelay(1/portTICK_PERIOD_MS);
+    pushData(leftAngle, rightAngle, penAngle, delayTime, counter);
+    if (counter!=oldcounter){
+      oldcounter = counter;
+      drawer.penAngle(penAngle);
+      drawer.moveAngle(leftAngle, rightAngle, delayTime);
+    } else
+		vTaskDelay(20/portTICK_PERIOD_MS);
 	}
 }
 

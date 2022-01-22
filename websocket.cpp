@@ -2,13 +2,22 @@
 
 #define USE_SERIAL Serial
 WebSocketsClient webSocket;
-float _x1=-1.0,_y1,_x2,_y2;
-void pushData(float &x1, float &y1, float &x2, float &y2){
-  x1=_x1;
-  x2=_x2;
-  y1=_y1;
-  y2=_y2;
-  _x1=-1.0;
+float _l,_r,_pen,_delay=0;
+int _counter=-1;
+void pushData(float &left, float &right, float &pen, float &delayTime, int &counter){
+  if (counter==_counter) return;
+  if (_l>30&&_l<150&&_r>30&&_r<150&&_pen>30&&_pen<150){
+    left=_l;
+    right=_r;
+    pen=_pen;
+    delayTime=_delay;
+    counter = _counter;
+    
+    webSocket.sendTXT("{status\":\"done\",\"count\":"+String(_counter)+"}");
+  } else {
+    webSocket.sendTXT("{status\":\"out of range\",\"count\":"+String(_counter)+"}");
+    counter = _counter;
+  }
 }
 
 void hexdump(const void *mem, uint32_t len, uint8_t cols) {
@@ -45,24 +54,39 @@ void webSocketEvent(WStype_t type, uint8_t * payload, size_t length) {
             //carControl(int(payload[0])-48);
 			// send message to server
       //JSON
-      StaticJsonDocument<192> doc;
-      DeserializationError error = deserializeJson(doc, payload);
-      if (error) {
-        Serial.print("deserializeJson() failed: ");
-        Serial.println(error.c_str());
-      return;
-      }
+      // String input;
 
-      const char* command = doc["command"]; // "Line"
-      if (strchr(command,'L')>0){
-        _x1 = doc["A"][0]; // 1.1
-        _y1 = doc["A"][1]; // 2.1
+        StaticJsonDocument<128> doc;
+        //USE_SERIAL.printf(payload);
+        DeserializationError error = deserializeJson(doc, payload);
 
-        _x2 = doc["B"][0]; // 2.4
-        _y2 = doc["B"][1]; // 4.4
-      }
-      //END OF JSON
-//			webSocket.sendTXT("Line Done");
+        if (error) {
+          Serial.print("deserializeJson() failed: ");
+          Serial.println(error.c_str());
+          return;
+        }
+
+        const char* command = doc["command"]; // "draw"
+        if (strstr(command, "draw")!=NULL){
+          _l = doc["left"]; // 90.1
+          _r = doc["right"]; // 90.1
+          _pen = doc["pen"]; // 90.1
+          _counter = doc["count"]; // 5
+          _delay = 4;
+        }
+        if (strstr(command, "move")!=NULL){
+          _l = doc["left"]; // 90.1
+          _r = doc["right"]; // 90.1
+          _pen = doc["pen"]; // 90.1
+          _counter = doc["count"]; // 5
+          _delay = 0;
+        }
+        
+        if (strstr(command,"check")!=NULL){
+          webSocket.sendTXT("{status\":\"OK\",\"device\":\"DRAW2\"}");
+        }
+        
+       
 		}
 			break;
 		case WStype_BIN:
@@ -84,7 +108,7 @@ void webSocketEvent(WStype_t type, uint8_t * payload, size_t length) {
 }
 void webSocketInit(void){
     // server address, port and URL
-	webSocket.begin("ws.uudamstudio.com", 1880, "/drawcommand");
+	webSocket.begin("node.creta.work", 1888, "/bot/draw");
 
 	// event handler
 	webSocket.onEvent(webSocketEvent);
@@ -93,7 +117,7 @@ void webSocketInit(void){
 	//webSocket.setAuthorization("user", "Password");
 
 	// try ever 5000 again if connection has failed
-	webSocket.setReconnectInterval(100);
+	webSocket.setReconnectInterval(5000);
 }
 void webSocketLoop(void){
     webSocket.loop();
